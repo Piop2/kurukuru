@@ -19,7 +19,7 @@ class App:
         pygame.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0"
+        self.VERSION = "v2.0b1"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
