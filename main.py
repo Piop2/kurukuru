@@ -17,6 +17,7 @@ class App:
             self.config_data = json.load(f)
 
         pygame.init()
+        pygame.font.init()
         pygame.mixer.init()
 
         self.VERSION = "v2.0b1"
