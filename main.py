@@ -26,6 +26,7 @@ class App:
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
+        self.COGNIZANCE = 100
 
         self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
         self.clock = pygame.time.Clock()
@@ -62,7 +63,6 @@ class App:
         self.volume_slider = SliderBar(
             (550, 90), (400, 20), 100, 0, self.config_data["volume"]
         )
-        self.latest_volume = self.volume
 
         self.surround_audio_active = self.config_data["surroundAudio"]
         self.surround_audio_checkbox = CheckBox(
@@ -119,6 +119,8 @@ class App:
         mouse_pos = (0, 0)
         mouse_click = False
 
+        cog_alpha = 0
+
         running = True
         while running:
             dt = self.clock.tick(self.fps)
@@ -129,9 +131,10 @@ class App:
                     # update
                     self.ani.update(dt)
 
+                    latest = self.volume
                     self.volume_slider.update(mouse_pos, mouse_click)
                     self.volume = round(self.volume_slider.value / 100, 2)
-                    if self.volume != self.latest_volume:
+                    if self.volume != latest:
                         self.mixer.volume = self.volume
                         self.mixer.play(self.volume)
                         self.latest_volume = self.volume
@@ -161,7 +164,6 @@ class App:
                         self.save()
                         self.mode = "kurukuru"
                         self.screen = pygame.display.set_mode(self.MONITOR_SIZE, pygame.FULLSCREEN)
-                        self.pos = [self.MONITOR_SIZE[0] + 500 * self.size, self.MONITOR_SIZE[1] - 500 * self.size]
                         self.set_window_top()
                         self.mixer.surround_audio = self.surround_audio_active
                         self.mixer.play(self.volume, True)
@@ -169,7 +171,7 @@ class App:
                         image_size = (500 * self.size, 500 * self.size)
                         match self.attached_pos:
                             case "bottom":
-                                self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
+                                self.pos = [self.MONITOR_SIZE[0], self.MONITOR_SIZE[1] - image_size[1]]
                             case "top":
                                 self.pos = [- image_size[0], 0]
                             case "left":
@@ -292,13 +294,13 @@ class App:
                         self.setting_button.update(mouse_pos, mouse_click)
                         self.exit_button.update(mouse_pos, mouse_click)
 
-                        if mouse_pos[0] <= 0 + 100:
+                        if mouse_pos[0] <= 0 + self.COGNIZANCE:
                             self.attached_pos = "left"
-                        if mouse_pos[0] >= self.MONITOR_SIZE[0] - 1 - 100:
+                        if mouse_pos[0] >= self.MONITOR_SIZE[0] - 1 - self.COGNIZANCE:
                             self.attached_pos = "right"
-                        if mouse_pos[1] <= 0 + 100:
+                        if mouse_pos[1] <= 0 + self.COGNIZANCE:
                             self.attached_pos = "top"
-                        if mouse_pos[1] >= self.MONITOR_SIZE[1] - 1 - 100:
+                        if mouse_pos[1] >= self.MONITOR_SIZE[1] - 1 - self.COGNIZANCE:
                             self.attached_pos = "bottom"
                     else:
                         speed = self.speed * dt
