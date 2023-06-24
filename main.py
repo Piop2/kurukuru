@@ -85,6 +85,7 @@ class App:
 
         # kurukuru
         self.setting_button = FloatingButton((self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 2 - 100), (200, 200))
+        self.exit_button = FloatingButton((self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 8 - 100), (200, 200))
         return
 
     @staticmethod
@@ -274,8 +275,9 @@ class App:
 
                     image_size = (500 * self.size, 500 * self.size)
                     if self.grab:
-                        self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 2)]
+                        self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 4)]
                         self.setting_button.update(mouse_pos, mouse_click)
+                        self.exit_button.update(mouse_pos, mouse_click)
                     else:
                         self.pos[0] -= self.speed * dt
                         if self.pos[0] <= - image_size[0]:
@@ -295,6 +297,9 @@ class App:
                         self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
                         self.mixer.stop()
 
+                    if self.exit_button.value:
+                        running = False
+
                     # render
                     self.screen.fill(self.INVISIBLE_BACKGROUND)
 
@@ -303,6 +308,7 @@ class App:
                     )
                     if self.grab:
                         self.setting_button.render(self.screen)
+                        self.exit_button.render(self.screen)
 
                         perfect_outline(self.screen, ani_image, self.pos)
                         # ani_image.set_alpha(100)
