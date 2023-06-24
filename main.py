@@ -1,5 +1,4 @@
 import json
-import os
 
 import pygame
 import win32gui
@@ -57,6 +56,7 @@ class App:
                 break
             images.append(image)
             n += 1
+        self.origin_image_size = images[0].get_size()
 
         self.ani = Animation(images, 80, self.config_data["animationSpeed"])
         self.grab = False
@@ -117,6 +117,10 @@ class App:
             win32con.SWP_NOMOVE | win32con.SWP_NOSIZE,
         )
         return
+
+    @property
+    def image_size(self) -> tuple[float, float]:
+        return self.origin_image_size[0] * self.size, self.origin_image_size[1] * self.size
 
     def save(self):
         with open("setting.json", "w") as f:
@@ -196,16 +200,15 @@ class App:
                         self.mixer.surround_audio = self.surround_audio_active
                         self.mixer.play(self.volume, True)
 
-                        image_size = (500 * self.size, 500 * self.size)
                         match self.attached_pos:
                             case "bottom":
-                                self.pos = [self.MONITOR_SIZE[0], self.MONITOR_SIZE[1] - image_size[1]]
+                                self.pos = [self.MONITOR_SIZE[0], self.MONITOR_SIZE[1] - self.image_size[1]]
                             case "top":
-                                self.pos = [- image_size[0], 0]
+                                self.pos = [- self.image_size[0], 0]
                             case "left":
-                                self.pos = [0, self.MONITOR_SIZE[1] - image_size[1]]
+                                self.pos = [0, self.MONITOR_SIZE[1] - self.image_size[1]]
                             case "right":
-                                self.pos = [self.MONITOR_SIZE[0] - image_size[0], - image_size[1]]
+                                self.pos = [self.MONITOR_SIZE[0] - self.image_size[0], - self.image_size[1]]
 
                     # render
                     self.screen.fill((255, 255, 255))
@@ -220,7 +223,7 @@ class App:
                     )
                     self.screen.blit(
                         ani_image,
-                        (500 - ani_image.get_width(), 500 - ani_image.get_height()),
+                        (self.origin_image_size[0] - ani_image.get_width(), self.origin_image_size[1] - ani_image.get_height()),
                     )
 
                     self.volume_slider.render(self.screen)
@@ -323,9 +326,8 @@ class App:
                     self.ani.update(dt)
                     self.mixer.update(self.pos)
 
-                    image_size = (500 * self.size, 500 * self.size)
                     if self.grab:
-                        self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 4)]
+                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), mouse_pos[1] - (self.image_size[0] // 4)]
                         self.setting_button.update(mouse_pos, mouse_click)
                         self.exit_button.update(mouse_pos, mouse_click)
 
@@ -343,24 +345,24 @@ class App:
                         match self.attached_pos:
                             case "bottom":
                                 goto = [- speed, 0]
-                                if self.pos[0] <= - image_size[0]:
-                                    self.pos[0] = self.MONITOR_SIZE[0] + image_size[0]
+                                if self.pos[0] <= - self.image_size[0]:
+                                    self.pos[0] = self.MONITOR_SIZE[0] + self.image_size[0]
                             case "top":
                                 goto = [speed, 0]
                                 if self.pos[0] >= self.MONITOR_SIZE[0]:
-                                    self.pos[0] = - image_size[0]
+                                    self.pos[0] = - self.image_size[0]
                             case "left":
                                 goto = [0, - speed]
-                                if self.pos[1] <= - image_size[1]:
-                                    self.pos[1] = self.MONITOR_SIZE[1] + image_size[1]
+                                if self.pos[1] <= - self.image_size[1]:
+                                    self.pos[1] = self.MONITOR_SIZE[1] + self.image_size[1]
                             case "right":
                                 goto = [0, speed]
                                 if self.pos[1] >= self.MONITOR_SIZE[1]:
-                                    self.pos[1] = - image_size[1]
+                                    self.pos[1] = - self.image_size[1]
 
                         self.pos = [self.pos[0] + goto[0], self.pos[1] + goto[1]]
 
-                    if pygame.Rect(*self.pos, *image_size).collidepoint(mouse_pos):
+                    if pygame.Rect(*self.pos, *self.image_size).collidepoint(mouse_pos):
                         # print(mouse_pos, mouse_click)
                         if mouse_click:
                             self.grab = True
@@ -368,13 +370,13 @@ class App:
                             if self.grab:
                                 match self.attached_pos:
                                     case "bottom":
-                                        self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
+                                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), self.MONITOR_SIZE[1] - self.image_size[1]]
                                     case "top":
-                                        self.pos = [mouse_pos[0] - (image_size[0] // 2), 0]
+                                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), 0]
                                     case "left":
-                                        self.pos = [0, mouse_pos[1] - (image_size[1] // 2)]
+                                        self.pos = [0, mouse_pos[1] - (self.image_size[1] // 2)]
                                     case "right":
-                                        self.pos = [self.MONITOR_SIZE[0] - image_size[0], mouse_pos[1] - (image_size[1] // 2)]
+                                        self.pos = [self.MONITOR_SIZE[0] - self.image_size[0], mouse_pos[1] - (self.image_size[1] // 2)]
                             self.grab = False
 
                     if self.setting_button.value:
