@@ -81,6 +81,11 @@ class App:
         self.speed = self.config_data["speed"] / 100
         self.speed_slider = SliderBar((550, 280), (400, 20), 400, 0, self.config_data["speed"])
 
+        self.top_button = Button((710, 320), (80, 20))
+        self.bottom_button = Button((710, 420), (80, 20))
+        self.left_button = Button((690, 340), (20, 80))
+        self.right_button = Button((790, 340), (20, 80))
+
         self.reset_button = Button((550, 450), (100, 30))
         self.apply_button = Button((850, 450), (100, 30))
 
@@ -137,7 +142,6 @@ class App:
                     if self.volume != latest:
                         self.mixer.volume = self.volume
                         self.mixer.play(self.volume)
-                        self.latest_volume = self.volume
 
                     self.ani_speed_slider.update(mouse_pos, mouse_click)
                     self.ani.speed = round(self.ani_speed_slider.value / 100, 2)
@@ -150,6 +154,20 @@ class App:
 
                     self.speed_slider.update(mouse_pos, mouse_click)
                     self.speed = round(self.speed_slider.value / 100, 2)
+
+                    self.top_button.update(mouse_pos, mouse_click)
+                    self.bottom_button.update(mouse_pos, mouse_click)
+                    self.left_button.update(mouse_pos, mouse_click)
+                    self.right_button.update(mouse_pos, mouse_click)
+
+                    if self.top_button.value:
+                        self.attached_pos = "top"
+                    if self.bottom_button.value:
+                        self.attached_pos = "bottom"
+                    if self.left_button.value:
+                        self.attached_pos = "left"
+                    if self.right_button.value:
+                        self.attached_pos = "right"
 
                     self.reset_button.update(mouse_pos, mouse_click)
                     if self.reset_button.value:
@@ -255,6 +273,13 @@ class App:
                             self.speed_slider.pos[1] - 20,
                         ),
                     )
+
+                    self.top_button.render(self.screen)
+                    self.bottom_button.render(self.screen)
+                    self.left_button.render(self.screen)
+                    self.right_button.render(self.screen)
+                    attached_text = self.neo_font_20.render(self.attached_pos, True, (0, 0, 0))
+                    self.screen.blit(attached_text, (750 - (attached_text.get_width() // 2), 380 - (attached_text.get_height() // 2)))
 
                     self.reset_button.render(self.screen)
                     reset_text = self.neo_font_20.render("리셋", True, (0, 0, 0))
