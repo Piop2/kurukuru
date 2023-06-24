@@ -7,7 +7,7 @@ import win32api
 
 from src.sliderbar import SliderBar
 from src.checkbox import CheckBox
-from src.button import Button
+from src.button import Button, FloatingButton
 from src.animation import Animation
 from src.audio import SurroundAudio
 from src.outline import perfect_outline
@@ -82,6 +82,9 @@ class App:
 
         self.reset_button = Button((550, 450), (100, 30))
         self.apply_button = Button((850, 450), (100, 30))
+
+        # kurukuru
+        self.setting_button = FloatingButton((self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 2 - 100), (200, 200))
         return
 
     @staticmethod
@@ -272,6 +275,7 @@ class App:
                     image_size = (500 * self.size, 500 * self.size)
                     if self.grab:
                         self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 2)]
+                        self.setting_button.update(mouse_pos, mouse_click)
                     else:
                         self.pos[0] -= self.speed * dt
                         if self.pos[0] <= - image_size[0]:
@@ -286,6 +290,11 @@ class App:
                                 self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
                             self.grab = False
 
+                    if self.setting_button.value:
+                        self.mode = "setting"
+                        self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
+                        self.mixer.stop()
+
                     # render
                     self.screen.fill(self.INVISIBLE_BACKGROUND)
 
@@ -293,9 +302,10 @@ class App:
                         self.ani.get_image(), self.size
                     )
                     if self.grab:
-
+                        self.setting_button.render(self.screen)
 
                         perfect_outline(self.screen, ani_image, self.pos)
+                        # ani_image.set_alpha(100)
                     self.screen.blit(
                         ani_image,
                         self.pos,

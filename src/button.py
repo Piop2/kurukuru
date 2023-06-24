@@ -53,3 +53,27 @@ class Button:
         pygame.draw.rect(surface, color, self._rect)
         pygame.draw.rect(surface, (0, 0, 0), self._rect, 2)
         return
+
+
+class FloatingButton(Button):
+    def __init__(self, pos: tuple[int, int], size: tuple[int, int]):
+        super().__init__(pos, size)
+        return
+
+    def update(self, mouse_pos: tuple[int, int], is_click: bool):
+        if not self._rect.collidepoint(mouse_pos):
+            self._is_hovered = False
+            return
+        self._is_hovered = True
+
+        if not is_click:
+            self._value = True
+        return
+
+    def render(self, surface: pygame.Surface):
+        if self._is_hovered:
+            color = (200, 200, 200)
+        else:
+            color = (50, 50, 50)
+        pygame.draw.rect(surface, color, self._rect, 0, 10)
+        return
