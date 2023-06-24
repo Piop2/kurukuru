@@ -22,7 +22,7 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b2"
+        self.VERSION = "v2.0b3"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
@@ -269,20 +269,21 @@ class App:
                     self.ani.update(dt)
                     self.mixer.update(self.pos)
 
+                    image_size = (500 * self.size, 500 * self.size)
                     if self.grab:
-                        self.pos = [mouse_pos[0] - 250, mouse_pos[1] - 250]
+                        self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 2)]
                     else:
                         self.pos[0] -= self.speed * dt
-                        if self.pos[0] <= - 500 * self.size:
-                            self.pos[0] = self.MONITOR_SIZE[0] + 500 * self.size
+                        if self.pos[0] <= - image_size[0]:
+                            self.pos[0] = self.MONITOR_SIZE[0] + image_size[0]
 
-                    if pygame.Rect(*self.pos, 500, 500).collidepoint(mouse_pos):
+                    if pygame.Rect(*self.pos, *image_size).collidepoint(mouse_pos):
                         # print(mouse_pos, mouse_click)
                         if mouse_click:
                             self.grab = True
                         else:
                             if self.grab:
-                                self.pos = [mouse_pos[0] - 250, self.MONITOR_SIZE[1] - 500]
+                                self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
                             self.grab = False
 
                     # render
@@ -292,6 +293,8 @@ class App:
                         self.ani.get_image(), self.size
                     )
                     if self.grab:
+
+
                         perfect_outline(self.screen, ani_image, self.pos)
                     self.screen.blit(
                         ani_image,
