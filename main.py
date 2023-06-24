@@ -1,4 +1,5 @@
 import json
+import os
 
 import pygame
 import win32gui
@@ -31,7 +32,7 @@ class App:
         self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
         self.clock = pygame.time.Clock()
         pygame.display.set_caption(f"KURUKURU {self.VERSION}")
-        pygame.display.set_icon(pygame.image.load("resource/icon.png"))
+        pygame.display.set_icon(pygame.image.load("resource/icon/icon.png"))
         self.fps = self.config_data["fps"]
 
         self.mode = "setting"
@@ -47,17 +48,26 @@ class App:
         )
 
         self.pos = [0, 0]
-        images = [pygame.image.load(f"resource/{i}.png") for i in range(1, 7)]
+        images = []
+        n = 0
+        while True:
+            try:
+                image = pygame.image.load(f"resource/animation/{n}.png")
+            except FileNotFoundError:
+                break
+            images.append(image)
+            n += 1
+
         self.ani = Animation(images, 80, self.config_data["animationSpeed"])
         self.grab = False
         self.attached_pos = self.config_data["attached"]
 
-        sound = pygame.mixer.Sound("resource/kurukuru.wav")
+        sound = pygame.mixer.Sound("resource/sound/kurukuru.wav")
         self.mixer = SurroundAudio(sound, 0, self.MONITOR_SIZE)
 
         # 폰트 크레딧 넣어야 됩니다.
-        self.neo_font_37 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 37)
-        self.neo_font_20 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 20)
+        self.neo_font_37 = pygame.font.Font("resource/font/NeoDunggeunmoPro-Regular.ttf", 37)
+        self.neo_font_20 = pygame.font.Font("resource/font/NeoDunggeunmoPro-Regular.ttf", 20)
 
         self.volume = self.config_data["volume"] / 100
         self.volume_slider = SliderBar(
@@ -200,7 +210,7 @@ class App:
                     # render
                     self.screen.fill((255, 255, 255))
 
-                    title_text = self.neo_font_37.render(f"빙글빙글 헤르타 {self.VERSION}", True, (0, 0, 0))
+                    title_text = self.neo_font_37.render(f"빙글빙글 f타 {self.VERSION}", True, (0, 0, 0))
                     self.screen.blit(
                         title_text, (750 - (title_text.get_width() // 2), 20)
                     )
