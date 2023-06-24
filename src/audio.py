@@ -13,18 +13,27 @@ class SurroundAudio:
 
         self.left_ear = (window_size[0] / 9 * 3, window_size[1] - 500)
         self.right_ear = (window_size[0] / 9 * 6, window_size[1] - 500)
+
+        self.volume = 1
+        self.surround_audio = True
         return
 
-    def play(self):
-        self.channel.play(self.sound, -1)
+    def play(self, volume, loop=False):
+        self.volume = volume
+        self.channel.set_volume(volume)
+        self.channel.play(self.sound, -1 if loop else 0)
         return
 
     def stop(self):
         self.channel.stop()
         return
 
-    def update(self, pos: list[float, float], master_volume: int = 1):
-        left = (self.window_size[0] - _get_distance(pos, self.left_ear)) / self.window_size[0] / 2 * master_volume
-        right = (self.window_size[0] - _get_distance(pos, self.right_ear)) / self.window_size[0] / 2 * master_volume
+    def update(self, pos: list[float, float]):
+        if self.surround_audio:
+            left = (self.window_size[0] - _get_distance(pos, self.left_ear)) / self.window_size[0] / 2 * self.volume
+            right = (self.window_size[0] - _get_distance(pos, self.right_ear)) / self.window_size[0] / 2 * self.volume
+        else:
+            left = self.volume
+            right = self.volume
         self.channel.set_volume(left, right)
         return

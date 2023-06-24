@@ -9,6 +9,7 @@ from src.sliderbar import SliderBar
 from src.checkbox import CheckBox
 from src.button import Button
 from src.animation import Animation
+from src.audio import SurroundAudio
 
 
 class App:
@@ -47,14 +48,18 @@ class App:
         images = [pygame.image.load(f"resource/{i}.png") for i in range(1, 7)]
         self.ani = Animation(images, 80, self.config_data["animationSpeed"])
 
+        sound = pygame.mixer.Sound("resource/kurukuru.wav")
+        self.mixer = SurroundAudio(sound, 0, self.MONITOR_SIZE)
+
         # 폰트 크레딧 넣어야 됩니다.
         self.neo_font_40 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 40)
         self.neo_font_22 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 22)
 
-        self.volume = 1.0
+        self.volume = float(self.config_data["volume"] / 100)
         self.volume_slider = SliderBar(
-            (550, 100), (400, 30), 100, 0, self.config_data["volume"]
+            (550, 100), (400, 30), 100, 0, int(self.volume * 100)
         )
+        self.latest_volume = self.volume
 
         self.surround_audio_active = self.config_data["surroundAudio"]
         self.surround_audio_checkbox = CheckBox(
@@ -107,6 +112,10 @@ class App:
 
                     self.volume_slider.update(mouse_pos, mouse_click)
                     self.volume = round(self.volume_slider.value / 100, 2)
+                    if self.volume != self.latest_volume:
+                        self.mixer.volume = self.volume
+                        self.mixer.play(self.volume)
+                        self.latest_volume = self.volume
 
                     self.ani_speed_slider.update(mouse_pos, mouse_click)
                     self.ani.speed = round(self.ani_speed_slider.value / 100, 2)
@@ -134,6 +143,8 @@ class App:
                         self.screen = pygame.display.set_mode(self.MONITOR_SIZE, pygame.FULLSCREEN)
                         self.pos = [self.MONITOR_SIZE[0] + 500 * self.size, self.MONITOR_SIZE[1] - 500 * self.size]
                         self.set_window_top()
+                        self.mixer.surround_audio = self.surround_audio_active
+                        self.mixer.play(self.volume, True)
 
                     # render
                     self.screen.fill((255, 255, 255))
@@ -242,6 +253,7 @@ class App:
                 case "kurukuru":
                     # update
                     self.ani.update(dt)
+                    self.mixer.update(self.pos)
 
                     self.pos[0] -= self.speed * dt
                     if self.pos[0] <= - 500 * self.size:
