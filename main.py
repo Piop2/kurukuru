@@ -10,6 +10,7 @@ from src.checkbox import CheckBox
 from src.button import Button
 from src.animation import Animation
 from src.audio import SurroundAudio
+from src.outline import perfect_outline
 
 
 class App:
@@ -21,7 +22,7 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b1"
+        self.VERSION = "v2.0b2"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
@@ -47,6 +48,7 @@ class App:
         self.pos = [0, 0]
         images = [pygame.image.load(f"resource/{i}.png") for i in range(1, 7)]
         self.ani = Animation(images, 80, self.config_data["animationSpeed"])
+        self.grab = False
 
         sound = pygame.mixer.Sound("resource/kurukuru.wav")
         self.mixer = SurroundAudio(sound, 0, self.MONITOR_SIZE)
@@ -93,7 +95,18 @@ class App:
             0,
             0,
             win32con.SWP_NOMOVE | win32con.SWP_NOSIZE,
-            )
+        )
+        return
+
+    def save(self):
+        with open("setting.json", "w") as f:
+            self.config_data["volume"] = self.volume_slider.value
+            self.config_data["animationSpeed"] = self.ani.speed
+            self.config_data["size"] = self.size
+            self.config_data["surroundAudio"] = self.surround_audio_active
+            self.config_data["speed"] = self.speed
+
+            json.dump(self.config_data, f, indent=4)
         return
 
     def run(self):
@@ -139,6 +152,7 @@ class App:
 
                     self.apply_button.update(mouse_pos, mouse_click)
                     if self.apply_button.value:
+                        self.save()
                         self.mode = "kurukuru"
                         self.screen = pygame.display.set_mode(self.MONITOR_SIZE, pygame.FULLSCREEN)
                         self.pos = [self.MONITOR_SIZE[0] + 500 * self.size, self.MONITOR_SIZE[1] - 500 * self.size]
@@ -255,9 +269,21 @@ class App:
                     self.ani.update(dt)
                     self.mixer.update(self.pos)
 
-                    self.pos[0] -= self.speed * dt
-                    if self.pos[0] <= - 500 * self.size:
-                        self.pos[0] = self.MONITOR_SIZE[0] + 500 * self.size
+                    if self.grab:
+                        self.pos = [mouse_pos[0] - 250, mouse_pos[1] - 250]
+                    else:
+                        self.pos[0] -= self.speed * dt
+                        if self.pos[0] <= - 500 * self.size:
+                            self.pos[0] = self.MONITOR_SIZE[0] + 500 * self.size
+
+                    if pygame.Rect(*self.pos, 500, 500).collidepoint(mouse_pos):
+                        # print(mouse_pos, mouse_click)
+                        if mouse_click:
+                            self.grab = True
+                        else:
+                            if self.grab:
+                                self.pos = [mouse_pos[0] - 250, self.MONITOR_SIZE[1] - 500]
+                            self.grab = False
 
                     # render
                     self.screen.fill(self.INVISIBLE_BACKGROUND)
@@ -265,6 +291,8 @@ class App:
                     ani_image = pygame.transform.scale_by(
                         self.ani.get_image(), self.size
                     )
+                    if self.grab:
+                        perfect_outline(self.screen, ani_image, self.pos)
                     self.screen.blit(
                         ani_image,
                         self.pos,
@@ -291,14 +319,7 @@ class App:
 
         pygame.quit()
 
-        with open("setting.json", "w") as f:
-            self.config_data["volume"] = self.volume_slider.value
-            self.config_data["animationSpeed"] = self.ani.speed
-            self.config_data["size"] = self.size
-            self.config_data["surroundAudio"] = self.surround_audio_active
-            self.config_data["speed"] = self.speed
-
-            json.dump(self.config_data, f, indent=4)
+        self.save()
         return
 
 
