@@ -22,7 +22,7 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b4"
+        self.VERSION = "v2.0b5"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
