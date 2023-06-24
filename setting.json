@@ -4,5 +4,6 @@
     "surroundAudio": true,
     "animationSpeed": 100,
     "size": 100,
-    "speed": 347
+    "speed": 100,
+    "attached": "bottom"
 }

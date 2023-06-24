@@ -49,36 +49,37 @@ class App:
         images = [pygame.image.load(f"resource/{i}.png") for i in range(1, 7)]
         self.ani = Animation(images, 80, self.config_data["animationSpeed"])
         self.grab = False
+        self.attached_pos = self.config_data["attached"]
 
         sound = pygame.mixer.Sound("resource/kurukuru.wav")
         self.mixer = SurroundAudio(sound, 0, self.MONITOR_SIZE)
 
         # 폰트 크레딧 넣어야 됩니다.
-        self.neo_font_40 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 40)
-        self.neo_font_22 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 22)
+        self.neo_font_37 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 37)
+        self.neo_font_20 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 20)
 
         self.volume = self.config_data["volume"] / 100
         self.volume_slider = SliderBar(
-            (550, 100), (400, 30), 100, 0, self.config_data["volume"]
+            (550, 90), (400, 20), 100, 0, self.config_data["volume"]
         )
         self.latest_volume = self.volume
 
         self.surround_audio_active = self.config_data["surroundAudio"]
         self.surround_audio_checkbox = CheckBox(
-            (550, 150), (25, 25), self.config_data["surroundAudio"]
+            (550, 125), (20, 20), self.config_data["surroundAudio"]
         )
 
         self.ani_speed_slider = SliderBar(
-            (550, 220), (400, 30), 200, 0, self.config_data["animationSpeed"]
+            (550, 180), (400, 20), 200, 0, self.config_data["animationSpeed"]
         )
 
         self.size = self.config_data["size"] / 100
         self.size_slider = SliderBar(
-            (550, 290), (400, 30), 200, 0, self.config_data["size"]
+            (550, 230), (400, 20), 200, 0, self.config_data["size"]
         )
 
         self.speed = self.config_data["speed"] / 100
-        self.speed_slider = SliderBar((550, 360), (400, 30), 400, 0, self.config_data["speed"])
+        self.speed_slider = SliderBar((550, 280), (400, 20), 400, 0, self.config_data["speed"])
 
         self.reset_button = Button((550, 450), (100, 30))
         self.apply_button = Button((850, 450), (100, 30))
@@ -109,6 +110,7 @@ class App:
             self.config_data["size"] = self.size_slider.value
             self.config_data["surroundAudio"] = self.surround_audio_active
             self.config_data["speed"] = self.speed_slider.value
+            self.config_data["attached"] = self.attached_pos
 
             json.dump(self.config_data, f, indent=4)
         return
@@ -164,10 +166,21 @@ class App:
                         self.mixer.surround_audio = self.surround_audio_active
                         self.mixer.play(self.volume, True)
 
+                        image_size = (500 * self.size, 500 * self.size)
+                        match self.attached_pos:
+                            case "bottom":
+                                self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
+                            case "top":
+                                self.pos = [- image_size[0], 0]
+                            case "left":
+                                self.pos = [0, self.MONITOR_SIZE[1] - image_size[1]]
+                            case "right":
+                                self.pos = [self.MONITOR_SIZE[0] - image_size[0], - image_size[1]]
+
                     # render
                     self.screen.fill((255, 255, 255))
 
-                    title_text = self.neo_font_40.render(f"빙글빙글 헤르타 {self.VERSION}", True, (0, 0, 0))
+                    title_text = self.neo_font_37.render(f"빙글빙글 헤르타 {self.VERSION}", True, (0, 0, 0))
                     self.screen.blit(
                         title_text, (750 - (title_text.get_width() // 2), 20)
                     )
@@ -184,65 +197,65 @@ class App:
                     self.ani_speed_slider.render(self.screen)
                     self.size_slider.render(self.screen)
 
-                    volume_text = self.neo_font_22.render(
+                    volume_text = self.neo_font_20.render(
                         f"마스터 볼륨: {self.volume_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         volume_text,
                         (
                             750 - (volume_text.get_width() // 2),
-                            self.volume_slider.pos[1] - 30,
+                            self.volume_slider.pos[1] - 20,
                         ),
                     )
 
-                    ani_speed_text = self.neo_font_22.render(
+                    ani_speed_text = self.neo_font_20.render(
                         f"애니메이션 속도: {self.ani_speed_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         ani_speed_text,
                         (
                             750 - (ani_speed_text.get_width() // 2),
-                            self.ani_speed_slider.pos[1] - 30,
+                            self.ani_speed_slider.pos[1] - 20,
                         ),
                     )
 
-                    size_text = self.neo_font_22.render(
+                    size_text = self.neo_font_20.render(
                         f"크기: {self.size_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         size_text,
                         (
                             750 - (size_text.get_width() // 2),
-                            self.size_slider.pos[1] - 30,
+                            self.size_slider.pos[1] - 20,
                         ),
                     )
 
                     self.surround_audio_checkbox.render(self.screen)
-                    surround_audio_text = self.neo_font_22.render(
+                    surround_audio_text = self.neo_font_20.render(
                         "서라운드 오디오", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         surround_audio_text,
                         (
-                            self.surround_audio_checkbox.pos[0] + 50,
+                            self.surround_audio_checkbox.pos[0] + 30,
                             self.surround_audio_checkbox.pos[1],
                         ),
                     )
 
                     self.speed_slider.render(self.screen)
-                    speed_text = self.neo_font_22.render(
+                    speed_text = self.neo_font_20.render(
                         f"속도: {self.speed_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         speed_text,
                         (
                             750 - (speed_text.get_width() // 2),
-                            self.speed_slider.pos[1] - 30,
+                            self.speed_slider.pos[1] - 20,
                         ),
                     )
 
                     self.reset_button.render(self.screen)
-                    reset_text = self.neo_font_22.render("리셋", True, (0, 0, 0))
+                    reset_text = self.neo_font_20.render("리셋", True, (0, 0, 0))
                     self.screen.blit(
                         reset_text,
                         (
@@ -256,7 +269,7 @@ class App:
                     )
 
                     self.apply_button.render(self.screen)
-                    apply_text = self.neo_font_22.render("실행", True, (0, 0, 0))
+                    apply_text = self.neo_font_20.render("실행", True, (0, 0, 0))
                     self.screen.blit(
                         apply_text,
                         (
@@ -278,10 +291,37 @@ class App:
                         self.pos = [mouse_pos[0] - (image_size[0] // 2), mouse_pos[1] - (image_size[0] // 4)]
                         self.setting_button.update(mouse_pos, mouse_click)
                         self.exit_button.update(mouse_pos, mouse_click)
+
+                        if mouse_pos[0] <= 0 + 100:
+                            self.attached_pos = "left"
+                        if mouse_pos[0] >= self.MONITOR_SIZE[0] - 1 - 100:
+                            self.attached_pos = "right"
+                        if mouse_pos[1] <= 0 + 100:
+                            self.attached_pos = "top"
+                        if mouse_pos[1] >= self.MONITOR_SIZE[1] - 1 - 100:
+                            self.attached_pos = "bottom"
                     else:
-                        self.pos[0] -= self.speed * dt
-                        if self.pos[0] <= - image_size[0]:
-                            self.pos[0] = self.MONITOR_SIZE[0] + image_size[0]
+                        speed = self.speed * dt
+                        goto = [0, 0]
+                        match self.attached_pos:
+                            case "bottom":
+                                goto = [- speed, 0]
+                                if self.pos[0] <= - image_size[0]:
+                                    self.pos[0] = self.MONITOR_SIZE[0] + image_size[0]
+                            case "top":
+                                goto = [speed, 0]
+                                if self.pos[0] >= self.MONITOR_SIZE[0]:
+                                    self.pos[0] = - image_size[0]
+                            case "left":
+                                goto = [0, - speed]
+                                if self.pos[1] <= - image_size[1]:
+                                    self.pos[1] = self.MONITOR_SIZE[1] + image_size[1]
+                            case "right":
+                                goto = [0, speed]
+                                if self.pos[1] >= self.MONITOR_SIZE[1]:
+                                    self.pos[1] = - image_size[1]
+
+                        self.pos = [self.pos[0] + goto[0], self.pos[1] + goto[1]]
 
                     if pygame.Rect(*self.pos, *image_size).collidepoint(mouse_pos):
                         # print(mouse_pos, mouse_click)
@@ -289,7 +329,15 @@ class App:
                             self.grab = True
                         else:
                             if self.grab:
-                                self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
+                                match self.attached_pos:
+                                    case "bottom":
+                                        self.pos = [mouse_pos[0] - (image_size[0] // 2), self.MONITOR_SIZE[1] - image_size[1]]
+                                    case "top":
+                                        self.pos = [mouse_pos[0] - (image_size[0] // 2), 0]
+                                    case "left":
+                                        self.pos = [0, mouse_pos[1] - (image_size[1] // 2)]
+                                    case "right":
+                                        self.pos = [self.MONITOR_SIZE[0] - image_size[0], mouse_pos[1] - (image_size[1] // 2)]
                             self.grab = False
 
                     if self.setting_button.value:
@@ -306,6 +354,16 @@ class App:
                     ani_image = pygame.transform.scale_by(
                         self.ani.get_image(), self.size
                     )
+                    match self.attached_pos:
+                        case "bottom":
+                            pass
+                        case "top":
+                            ani_image = pygame.transform.rotate(ani_image, 180)
+                        case "left":
+                            ani_image = pygame.transform.rotate(ani_image, 270)
+                        case "right":
+                            ani_image = pygame.transform.rotate(ani_image, 90)
+
                     if self.grab:
                         self.setting_button.render(self.screen)
                         self.exit_button.render(self.screen)
