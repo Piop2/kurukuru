@@ -22,7 +22,7 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b3"
+        self.VERSION = "v2.0b4"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
@@ -57,28 +57,28 @@ class App:
         self.neo_font_40 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 40)
         self.neo_font_22 = pygame.font.Font("resource/NeoDunggeunmoPro-Regular.ttf", 22)
 
-        self.volume = float(self.config_data["volume"] / 100)
+        self.volume = self.config_data["volume"] / 100
         self.volume_slider = SliderBar(
-            (550, 100), (400, 30), 100, 0, int(self.volume * 100)
+            (550, 100), (400, 30), 100, 0, self.config_data["volume"]
         )
         self.latest_volume = self.volume
 
         self.surround_audio_active = self.config_data["surroundAudio"]
         self.surround_audio_checkbox = CheckBox(
-            (550, 150), (25, 25), self.surround_audio_active
+            (550, 150), (25, 25), self.config_data["surroundAudio"]
         )
 
         self.ani_speed_slider = SliderBar(
-            (550, 220), (400, 30), 200, 0, int(self.config_data["animationSpeed"] * 100)
+            (550, 220), (400, 30), 200, 0, self.config_data["animationSpeed"]
         )
 
-        self.size = 1.0
+        self.size = self.config_data["size"] / 100
         self.size_slider = SliderBar(
-            (550, 290), (400, 30), 200, 0, int(self.config_data["size"] * 100)
+            (550, 290), (400, 30), 200, 0, self.config_data["size"]
         )
 
-        self.speed = self.config_data["speed"]
-        self.speed_slider = SliderBar((550, 360), (400, 30), 400, 0, int(self.config_data["speed"] * 100))
+        self.speed = self.config_data["speed"] / 100
+        self.speed_slider = SliderBar((550, 360), (400, 30), 400, 0, self.config_data["speed"])
 
         self.reset_button = Button((550, 450), (100, 30))
         self.apply_button = Button((850, 450), (100, 30))
@@ -105,10 +105,10 @@ class App:
     def save(self):
         with open("setting.json", "w") as f:
             self.config_data["volume"] = self.volume_slider.value
-            self.config_data["animationSpeed"] = self.ani.speed
-            self.config_data["size"] = self.size
+            self.config_data["animationSpeed"] = int(self.ani.speed * 100)
+            self.config_data["size"] = self.size_slider.value
             self.config_data["surroundAudio"] = self.surround_audio_active
-            self.config_data["speed"] = self.speed
+            self.config_data["speed"] = self.speed_slider.value
 
             json.dump(self.config_data, f, indent=4)
         return
@@ -196,7 +196,7 @@ class App:
                     )
 
                     ani_speed_text = self.neo_font_22.render(
-                        f"애니메이션 속도: x{self.ani.speed:.2f}", True, (0, 0, 0)
+                        f"애니메이션 속도: {self.ani_speed_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         ani_speed_text,
@@ -207,7 +207,7 @@ class App:
                     )
 
                     size_text = self.neo_font_22.render(
-                        f"크기: x{self.size:.2f}", True, (0, 0, 0)
+                        f"크기: {self.size_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         size_text,
@@ -231,7 +231,7 @@ class App:
 
                     self.speed_slider.render(self.screen)
                     speed_text = self.neo_font_22.render(
-                        f"속도: x{self.speed:.2f}", True, (0, 0, 0)
+                        f"속도: {self.speed_slider.value}%", True, (0, 0, 0)
                     )
                     self.screen.blit(
                         speed_text,
