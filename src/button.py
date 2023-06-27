@@ -2,9 +2,18 @@ import pygame
 
 
 class Button:
-    def __init__(self, pos: tuple[int, int], size: tuple[int, int]):
+    def __init__(
+        self,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        image: pygame.Surface | None = None,
+    ):
+        if image is not None:
+            image = image.copy()
+
         self._pos = pos
         self._size = size
+        self._image = image
         self._rect = pygame.Rect(*pos, *size)
 
         self._is_pushed = False
@@ -56,9 +65,18 @@ class Button:
 
 
 class FloatingButton(Button):
-    def __init__(self, pos: tuple[int, int], size: tuple[int, int]):
-        super().__init__(pos, size)
+    def __init__(
+        self,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        image: pygame.Surface | None = None,
+    ):
+        super().__init__(pos, size, image)
         return
+
+    @property
+    def is_hovered(self) -> bool:
+        return self._is_hovered
 
     def update(self, mouse_pos: tuple[int, int], is_click: bool):
         if not self._rect.collidepoint(mouse_pos):
@@ -71,6 +89,20 @@ class FloatingButton(Button):
         return
 
     def render(self, surface: pygame.Surface):
+        if self._image is not None:
+            surface.blit(
+                self._image,
+                (
+                    self._pos[0]
+                    + (self._size[0] // 2)
+                    - (self._image.get_width() // 2),
+                    self._pos[1]
+                    + (self._size[1] // 2)
+                    - (self._image.get_height() // 2),
+                ),
+            )
+            return
+
         if self._is_hovered:
             color = (200, 200, 200)
         else:

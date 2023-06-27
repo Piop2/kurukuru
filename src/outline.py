@@ -1,7 +1,9 @@
 import pygame
 
 
-def perfect_outline(surface: pygame.Surface, img: pygame.Surface, loc: list[int | float]):
+def perfect_outline(
+    surface: pygame.Surface, img: pygame.Surface, loc: list[int | float]
+):
     mask = pygame.mask.from_surface(img)
     mask_surf_white = mask.to_surface()
     mask_surf_white.set_colorkey((0, 0, 0))

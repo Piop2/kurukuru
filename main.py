@@ -22,9 +22,12 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b5"
+        self.VERSION = "v2.0b6"
         self.WINDOW_SIZE = (1000, 500)
-        self.MONITOR_SIZE = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+        self.MONITOR_SIZE = (
+            pygame.display.Info().current_w,
+            pygame.display.Info().current_h,
+        )
         self.INVISIBLE_BACKGROUND = (255, 0, 128)
         self.COGNIZANCE = 100
 
@@ -66,12 +69,19 @@ class App:
         self.mixer = SurroundAudio(sound, 0, self.MONITOR_SIZE)
 
         # 폰트 크레딧 넣어야 됩니다.
-        self.neo_font_37 = pygame.font.Font("resource/font/NeoDunggeunmoPro-Regular.ttf", 37)
-        self.neo_font_20 = pygame.font.Font("resource/font/NeoDunggeunmoPro-Regular.ttf", 20)
+        self.neo_font_37 = pygame.font.Font(
+            "resource/font/NeoDunggeunmoPro-Regular.ttf", 37
+        )
+        self.neo_font_20 = pygame.font.Font(
+            "resource/font/NeoDunggeunmoPro-Regular.ttf", 20
+        )
+
+        flower = pygame.image.load("resource/image/flower.png")
+        bar = pygame.image.load("resource/image/bar.png")
 
         self.volume = self.config_data["volume"] / 100
         self.volume_slider = SliderBar(
-            (550, 90), (400, 20), 100, 0, self.config_data["volume"]
+            (550, 90), (400, 20), 100, 0, self.config_data["volume"], flower, bar
         )
 
         self.surround_audio_active = self.config_data["surroundAudio"]
@@ -80,16 +90,24 @@ class App:
         )
 
         self.ani_speed_slider = SliderBar(
-            (550, 180), (400, 20), 200, 0, self.config_data["animationSpeed"]
+            (550, 180),
+            (400, 20),
+            200,
+            0,
+            self.config_data["animationSpeed"],
+            flower,
+            bar,
         )
 
         self.size = self.config_data["size"] / 100
         self.size_slider = SliderBar(
-            (550, 230), (400, 20), 200, 0, self.config_data["size"]
+            (550, 230), (400, 20), 200, 0, self.config_data["size"], flower, bar
         )
 
         self.speed = self.config_data["speed"] / 100
-        self.speed_slider = SliderBar((550, 280), (400, 20), 400, 0, self.config_data["speed"])
+        self.speed_slider = SliderBar(
+            (550, 280), (400, 20), 400, 0, self.config_data["speed"], flower, bar
+        )
 
         self.top_button = Button((710, 320), (80, 20))
         self.bottom_button = Button((710, 420), (80, 20))
@@ -100,8 +118,17 @@ class App:
         self.apply_button = Button((850, 450), (100, 30))
 
         # kurukuru
-        self.setting_button = FloatingButton((self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 2 - 100), (200, 200))
-        self.exit_button = FloatingButton((self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 8 - 100), (200, 200))
+        gear = pygame.image.load("resource/image/gear.png")
+
+        self.setting_button = FloatingButton(
+            (self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 2 - 100),
+            (200, 200),
+            gear,
+        )
+        self.exit_button = FloatingButton(
+            (self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 8 - 100),
+            (200, 200),
+        )
         return
 
     @staticmethod
@@ -120,7 +147,10 @@ class App:
 
     @property
     def image_size(self) -> tuple[float, float]:
-        return self.origin_image_size[0] * self.size, self.origin_image_size[1] * self.size
+        return (
+            self.origin_image_size[0] * self.size,
+            self.origin_image_size[1] * self.size,
+        )
 
     def save(self):
         with open("setting.json", "w") as f:
@@ -139,6 +169,8 @@ class App:
         mouse_click = False
 
         cog_alpha = 0
+
+        floating_button_hovered = False
 
         running = True
         while running:
@@ -195,25 +227,38 @@ class App:
                     if self.apply_button.value:
                         self.save()
                         self.mode = "kurukuru"
-                        self.screen = pygame.display.set_mode(self.MONITOR_SIZE, pygame.FULLSCREEN)
+                        self.screen = pygame.display.set_mode(
+                            self.MONITOR_SIZE, pygame.FULLSCREEN
+                        )
                         self.set_window_top()
                         self.mixer.surround_audio = self.surround_audio_active
                         self.mixer.play(self.volume, True)
 
                         match self.attached_pos:
                             case "bottom":
-                                self.pos = [self.MONITOR_SIZE[0], self.MONITOR_SIZE[1] - self.image_size[1]]
+                                self.pos = [
+                                    self.MONITOR_SIZE[0],
+                                    self.MONITOR_SIZE[1] - self.image_size[1],
+                                ]
                             case "top":
-                                self.pos = [- self.image_size[0], 0]
+                                self.pos = [-self.image_size[0], 0]
                             case "left":
-                                self.pos = [0, self.MONITOR_SIZE[1] - self.image_size[1]]
+                                self.pos = [
+                                    0,
+                                    self.MONITOR_SIZE[1] - self.image_size[1],
+                                ]
                             case "right":
-                                self.pos = [self.MONITOR_SIZE[0] - self.image_size[0], - self.image_size[1]]
+                                self.pos = [
+                                    self.MONITOR_SIZE[0] - self.image_size[0],
+                                    -self.image_size[1],
+                                ]
 
                     # render
                     self.screen.fill((255, 255, 255))
 
-                    title_text = self.neo_font_37.render(f"빙글빙글 f타 {self.VERSION}", True, (0, 0, 0))
+                    title_text = self.neo_font_37.render(
+                        "빙글빙글 헤르타 beta", True, (0, 0, 0)
+                    )
                     self.screen.blit(
                         title_text, (750 - (title_text.get_width() // 2), 20)
                     )
@@ -223,7 +268,10 @@ class App:
                     )
                     self.screen.blit(
                         ani_image,
-                        (self.origin_image_size[0] - ani_image.get_width(), self.origin_image_size[1] - ani_image.get_height()),
+                        (
+                            self.origin_image_size[0] - ani_image.get_width(),
+                            self.origin_image_size[1] - ani_image.get_height(),
+                        ),
                     )
 
                     self.volume_slider.render(self.screen)
@@ -291,8 +339,16 @@ class App:
                     self.bottom_button.render(self.screen)
                     self.left_button.render(self.screen)
                     self.right_button.render(self.screen)
-                    attached_text = self.neo_font_20.render(self.attached_pos, True, (0, 0, 0))
-                    self.screen.blit(attached_text, (750 - (attached_text.get_width() // 2), 380 - (attached_text.get_height() // 2)))
+                    attached_text = self.neo_font_20.render(
+                        self.attached_pos, True, (0, 0, 0)
+                    )
+                    self.screen.blit(
+                        attached_text,
+                        (
+                            750 - (attached_text.get_width() // 2),
+                            380 - (attached_text.get_height() // 2),
+                        ),
+                    )
 
                     self.reset_button.render(self.screen)
                     reset_text = self.neo_font_20.render("리셋", True, (0, 0, 0))
@@ -327,9 +383,20 @@ class App:
                     self.mixer.update(self.pos)
 
                     if self.grab:
-                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), mouse_pos[1] - (self.image_size[0] // 4)]
+                        self.pos = [
+                            mouse_pos[0] - (self.image_size[0] // 2),
+                            mouse_pos[1] - (self.image_size[0] // 4),
+                        ]
                         self.setting_button.update(mouse_pos, mouse_click)
                         self.exit_button.update(mouse_pos, mouse_click)
+
+                        if (
+                            self.setting_button.is_hovered
+                            or self.exit_button.is_hovered
+                        ):
+                            floating_button_hovered = True
+                        else:
+                            floating_button_hovered = False
 
                         if mouse_pos[0] <= 0 + self.COGNIZANCE:
                             self.attached_pos = "left"
@@ -344,21 +411,25 @@ class App:
                         goto = [0, 0]
                         match self.attached_pos:
                             case "bottom":
-                                goto = [- speed, 0]
-                                if self.pos[0] <= - self.image_size[0]:
-                                    self.pos[0] = self.MONITOR_SIZE[0] + self.image_size[0]
+                                goto = [-speed, 0]
+                                if self.pos[0] <= -self.image_size[0]:
+                                    self.pos[0] = (
+                                        self.MONITOR_SIZE[0] + self.image_size[0]
+                                    )
                             case "top":
                                 goto = [speed, 0]
                                 if self.pos[0] >= self.MONITOR_SIZE[0]:
-                                    self.pos[0] = - self.image_size[0]
+                                    self.pos[0] = -self.image_size[0]
                             case "left":
-                                goto = [0, - speed]
-                                if self.pos[1] <= - self.image_size[1]:
-                                    self.pos[1] = self.MONITOR_SIZE[1] + self.image_size[1]
+                                goto = [0, -speed]
+                                if self.pos[1] <= -self.image_size[1]:
+                                    self.pos[1] = (
+                                        self.MONITOR_SIZE[1] + self.image_size[1]
+                                    )
                             case "right":
                                 goto = [0, speed]
                                 if self.pos[1] >= self.MONITOR_SIZE[1]:
-                                    self.pos[1] = - self.image_size[1]
+                                    self.pos[1] = -self.image_size[1]
 
                         self.pos = [self.pos[0] + goto[0], self.pos[1] + goto[1]]
 
@@ -370,13 +441,25 @@ class App:
                             if self.grab:
                                 match self.attached_pos:
                                     case "bottom":
-                                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), self.MONITOR_SIZE[1] - self.image_size[1]]
+                                        self.pos = [
+                                            mouse_pos[0] - (self.image_size[0] // 2),
+                                            self.MONITOR_SIZE[1] - self.image_size[1],
+                                        ]
                                     case "top":
-                                        self.pos = [mouse_pos[0] - (self.image_size[0] // 2), 0]
+                                        self.pos = [
+                                            mouse_pos[0] - (self.image_size[0] // 2),
+                                            0,
+                                        ]
                                     case "left":
-                                        self.pos = [0, mouse_pos[1] - (self.image_size[1] // 2)]
+                                        self.pos = [
+                                            0,
+                                            mouse_pos[1] - (self.image_size[1] // 2),
+                                        ]
                                     case "right":
-                                        self.pos = [self.MONITOR_SIZE[0] - self.image_size[0], mouse_pos[1] - (self.image_size[1] // 2)]
+                                        self.pos = [
+                                            self.MONITOR_SIZE[0] - self.image_size[0],
+                                            mouse_pos[1] - (self.image_size[1] // 2),
+                                        ]
                             self.grab = False
 
                     if self.setting_button.value:
@@ -391,7 +474,8 @@ class App:
                     self.screen.fill(self.INVISIBLE_BACKGROUND)
 
                     ani_image = pygame.transform.scale_by(
-                        self.ani.get_image(), self.size
+                        self.ani.get_image(),
+                        self.size if not floating_button_hovered else 0.3,
                     )
                     match self.attached_pos:
                         case "bottom":
@@ -407,12 +491,15 @@ class App:
                         self.setting_button.render(self.screen)
                         self.exit_button.render(self.screen)
 
-                        perfect_outline(self.screen, ani_image, self.pos)
+                        pos = [
+                            mouse_pos[0] - (ani_image.get_width() // 2),
+                            mouse_pos[1] - (ani_image.get_height() // 2),
+                        ]
+                        perfect_outline(self.screen, ani_image, pos)
                         # ani_image.set_alpha(100)
-                    self.screen.blit(
-                        ani_image,
-                        self.pos,
-                    )
+                    else:
+                        pos = self.pos
+                    self.screen.blit(ani_image, pos)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

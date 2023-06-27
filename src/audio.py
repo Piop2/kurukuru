@@ -6,7 +6,9 @@ def _get_distance(pos1, pos2):
 
 
 class SurroundAudio:
-    def __init__(self, sound: pygame.mixer.Sound, chan: int, window_size: tuple[int, int]):
+    def __init__(
+        self, sound: pygame.mixer.Sound, chan: int, window_size: tuple[int, int]
+    ):
         self.sound = sound
         self.channel = pygame.mixer.Channel(chan)
         self.window_size = window_size
@@ -30,8 +32,18 @@ class SurroundAudio:
 
     def update(self, pos: list[float, float]):
         if self.surround_audio:
-            left = (self.window_size[0] - _get_distance(pos, self.left_ear)) / self.window_size[0] / 2 * self.volume
-            right = (self.window_size[0] - _get_distance(pos, self.right_ear)) / self.window_size[0] / 2 * self.volume
+            left = (
+                (self.window_size[0] - _get_distance(pos, self.left_ear))
+                / self.window_size[0]
+                / 2
+                * self.volume
+            )
+            right = (
+                (self.window_size[0] - _get_distance(pos, self.right_ear))
+                / self.window_size[0]
+                / 2
+                * self.volume
+            )
         else:
             left = self.volume
             right = self.volume
