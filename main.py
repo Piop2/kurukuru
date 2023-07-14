@@ -22,7 +22,7 @@ class App:
         pygame.font.init()
         pygame.mixer.init()
 
-        self.VERSION = "v2.0b6"
+        self.VERSION = "v2.0b7"
         self.WINDOW_SIZE = (1000, 500)
         self.MONITOR_SIZE = (
             pygame.display.Info().current_w,
@@ -464,6 +464,7 @@ class App:
 
                     if self.setting_button.value:
                         self.mode = "setting"
+                        floating_button_hovered = False
                         self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
                         self.mixer.stop()
 
