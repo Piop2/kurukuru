@@ -38,12 +38,16 @@ class SurroundAudio:
                 / 2
                 * self.volume
             )
+            if left <= 0:
+                left = 0
             right = (
                 (self.window_size[0] - _get_distance(pos, self.right_ear))
                 / self.window_size[0]
                 / 2
                 * self.volume
             )
+            if right <= 0:
+                right = 0
         else:
             left = self.volume
             right = self.volume
