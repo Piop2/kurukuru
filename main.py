@@ -118,16 +118,17 @@ class App:
         self.apply_button = Button((850, 450), (100, 30))
 
         # kurukuru
-        gear = pygame.image.load("resource/image/gear.png")
-
         self.setting_button = FloatingButton(
             (self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 2 - 100),
             (200, 200),
-            gear,
+            pygame.image.load("resource/image/gear.png")
         )
+
         self.exit_button = FloatingButton(
-            (self.MONITOR_SIZE[0] // 2 - 100, self.MONITOR_SIZE[1] // 8 - 100),
+            (150, self.MONITOR_SIZE[1] - 300),
             (200, 200),
+            pygame.transform.scale(pygame.image.load("resource/image/trashcan_close.png"), (300, 300)),
+            pygame.transform.scale(pygame.image.load("resource/image/trashcan_open.png"), (300, 300))
         )
         return
 

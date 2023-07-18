@@ -69,9 +69,13 @@ class FloatingButton(Button):
         self,
         pos: tuple[int, int],
         size: tuple[int, int],
-        image: pygame.Surface | None = None,
+        default_image: pygame.Surface,
+        hovered_image: pygame.Surface | None = None
     ):
-        super().__init__(pos, size, image)
+        super().__init__(pos, size, None)
+
+        self._default_image = default_image
+        self._hovered_image = hovered_image
         return
 
     @property
@@ -89,23 +93,42 @@ class FloatingButton(Button):
         return
 
     def render(self, surface: pygame.Surface):
-        if self._image is not None:
+        if not self._is_hovered:
             surface.blit(
-                self._image,
+                self._default_image,
                 (
                     self._pos[0]
                     + (self._size[0] // 2)
-                    - (self._image.get_width() // 2),
+                    - (self._default_image.get_width() // 2),
                     self._pos[1]
                     + (self._size[1] // 2)
-                    - (self._image.get_height() // 2),
+                    - (self._default_image.get_height() // 2),
                 ),
             )
             return
 
-        if self._is_hovered:
-            color = (200, 200, 200)
+        if self._hovered_image is not None:
+            surface.blit(
+                self._hovered_image,
+                (
+                    self._pos[0]
+                    + (self._size[0] // 2)
+                    - (self._hovered_image.get_width() // 2),
+                    self._pos[1]
+                    + (self._size[1] // 2)
+                    - (self._hovered_image.get_height() // 2),
+                ),
+            )
         else:
-            color = (50, 50, 50)
-        pygame.draw.rect(surface, color, self._rect, 0, 10)
+            surface.blit(
+                self._default_image,
+                (
+                    self._pos[0]
+                    + (self._size[0] // 2)
+                    - (self._default_image.get_width() // 2),
+                    self._pos[1]
+                    + (self._size[1] // 2)
+                    - (self._default_image.get_height() // 2),
+                ),
+            )
         return
